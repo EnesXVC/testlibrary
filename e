@@ -1,57 +1,83 @@
--- UI Library Example
+-- OrionLibrary.lua
+local OrionLibrary = {}
 
-local UI_Library = {}
+-- UI oluşturma işlevi
+function OrionLibrary.CreateUI(parent)
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Parent = parent
 
--- Instances:
-local ScreenGui = Instance.new("ScreenGui")
-local Frame = Instance.new("Frame")
-local UICorner = Instance.new("UICorner")
-local Title = Instance.new("TextLabel")
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Parent = screenGui
+    mainFrame.Size = UDim2.new(0, 300, 0, 200)
+    mainFrame.Position = UDim2.new(0.5, -150, 0.5, -100)
+    mainFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 
--- Properties:
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    local title = Instance.new("TextLabel")
+    title.Parent = mainFrame
+    title.Size = UDim2.new(1, 0, 0.2, 0)
+    title.Position = UDim2.new(0, 0, 0, 0)
+    title.Text = "Script Executor"
+    title.TextSize = 20
+    title.BackgroundTransparency = 1
+    title.TextColor3 = Color3.fromRGB(0, 0, 0)
 
-Frame.Parent = ScreenGui
-Frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-Frame.BorderSizePixel = 0
-Frame.Position = UDim2.new(0.300000012, 417, 0.0500000007, 234)
-Frame.Size = UDim2.new(0, 200, 0, 50)
+    local openButton = Instance.new("TextButton")
+    openButton.Parent = mainFrame
+    openButton.Size = UDim2.new(0.5, 0, 0.2, 0)
+    openButton.Position = UDim2.new(0, 0, 0.2, 0)
+    openButton.Text = "Open Scripts"
+    openButton.TextSize = 14
+    openButton.BackgroundColor3 = Color3.fromRGB(0, 122, 255)
+    openButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 
-Title.Parent = Frame
-Title.BackgroundTransparency = 1.000
-Title.Size = UDim2.new(1, 0, 1, 0)
-Title.Font = Enum.Font.SourceSans
-Title.TextColor3 = Color3.fromRGB(0, 0, 0)
-Title.TextSize = 18.000
+    local scriptsFrame = Instance.new("Frame")
+    scriptsFrame.Parent = mainFrame
+    scriptsFrame.Size = UDim2.new(1, 0, 0.6, 0)
+    scriptsFrame.Position = UDim2.new(0, 0, 0.4, 0)
+    scriptsFrame.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
 
-UICorner.Parent = Frame
+    local scriptsList = {}
 
--- Function to add buttons:
-function UI_Library.AddButton(buttonName, buttonText, scriptCode)
-    local buttonFrame = Instance.new("Frame")
-    buttonFrame.Parent = Frame
-    buttonFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    buttonFrame.Size = UDim2.new(0, 180, 0, 30)
-    
-    local button = Instance.new("TextButton")
-    button.Parent = buttonFrame
-    button.Size = UDim2.new(1, 0, 1, 0)
-    button.Text = buttonText
-    button.Font = Enum.Font.SourceSans
-    button.TextColor3 = Color3.fromRGB(0, 0, 0)
-    button.TextSize = 14
-
-    button.MouseButton1Click:Connect(function()
-        loadstring(scriptCode)()
+    -- Open butonunun işlevselliği
+    openButton.MouseButton1Click:Connect(function()
+        for _, frame in ipairs(scriptsList) do
+            frame.Visible = not frame.Visible
+        end
     end)
+
+    -- Script ekleme işlevi
+    function OrionLibrary.AddScriptButton(scriptName, description, code)
+        local scriptButton = Instance.new("TextButton")
+        scriptButton.Parent = scriptsFrame
+        scriptButton.Size = UDim2.new(1, 0, 0.2, 0)
+        scriptButton.Text = scriptName
+        scriptButton.TextSize = 14
+        scriptButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+        scriptButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+
+        local descriptionLabel = Instance.new("TextLabel")
+        descriptionLabel.Parent = scriptButton
+        descriptionLabel.Size = UDim2.new(1, 0, 0.2, 0)
+        descriptionLabel.Position = UDim2.new(0, 0, 0.8, 0)
+        descriptionLabel.Text = description
+        descriptionLabel.TextSize = 12
+        descriptionLabel.BackgroundTransparency = 1
+        descriptionLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
+
+        -- Scripti çalıştırma
+        scriptButton.MouseButton1Click:Connect(function()
+            local func = loadstring(code)
+            if func then
+                func()
+            else
+                warn("Invalid script code.")
+            end
+        end)
+
+        table.insert(scriptsList, scriptButton)
+    end
+
+    return screenGui
 end
 
--- Example of adding a button with a script
-UI_Library.AddButton("TestButton", "Click Me!", [[
-    print("Button clicked!")
-]])
-
--- To change title dynamically:
-game.CoreGui.ScreenGui.Frame.Title.Text = "Custom Title Here"
+return OrionLibrary
